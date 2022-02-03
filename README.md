@@ -1,6 +1,6 @@
 # fastify-openapi-schema-loader
 
-Thifastify-openapi-schema-loaderfastify-openapi-schema-loaders plugin follows the intention of creating the OpenAPI Scheme first and thereby performing request parameter validation based on it.
+This plugin follows the intention of creating the OpenAPI Scheme first and thereby performing request parameter validation based on it.
 
 This Plugin automatically sets the Fastify-Schema of the RouterOption by reading the pre-written OpenAPI Schema file('yaml', 'json').
 
