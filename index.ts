@@ -1,11 +1,20 @@
 import fp from 'fastify-plugin';
 import SwaggerParser from '@apidevtools/swagger-parser';
-import { isIgnoredRouter, PluginError, PLUGIN_ERROR_NAME } from './common';
+import { PluginError, PLUGIN_ERROR_NAME, RouteOptionAlias } from './common';
 import { makeOpenAPI3SchemaLoader } from './loader';
 import { OpenAPIV3 } from 'openapi-types';
-import { SchemaPluginOptions } from './type';
 import type { FastifyPluginCallback } from 'fastify';
 
+interface RouterIdentification {
+  method: string;
+  path: string;
+}
+interface SchemaPluginOptions {
+  documentPath: string;
+  ignoreRouters?: RouterIdentification[];
+  override?: boolean;
+  log?: boolean;
+}
 const oasSchemaPlugin: FastifyPluginCallback<SchemaPluginOptions> = async (
   fastify,
   { documentPath, ignoreRouters = [], log = true },
@@ -13,7 +22,7 @@ const oasSchemaPlugin: FastifyPluginCallback<SchemaPluginOptions> = async (
 ) => {
   try {
     const oas = await SwaggerParser.validate(documentPath, {});
-    // TODO: oas 지원 버전 추가 및 버전별 타입 체크
+    // TODO: Add oas support version and check type by version.
     if ('openapi' in oas && oas.openapi.startsWith('3.0')) {
       fastify.addHook('onRoute', (routeOption) => {
         if (log) {
@@ -21,7 +30,7 @@ const oasSchemaPlugin: FastifyPluginCallback<SchemaPluginOptions> = async (
             `Trying to load the schema for [${routeOption.method} ${routeOption.url}]`
           );
         }
-        if (isIgnoredRouter(ignoreRouters, routeOption)) {
+        if (_isIgnoredRouter(ignoreRouters, routeOption)) {
           done();
           return;
         }
@@ -65,5 +74,15 @@ const oasSchemaPlugin: FastifyPluginCallback<SchemaPluginOptions> = async (
     }
   }
 };
+function _isIgnoredRouter(
+  ignoreList: RouterIdentification[],
+  routeOption: RouteOptionAlias
+) {
+  return ignoreList.some(
+    (toIgnore) =>
+      toIgnore.method === routeOption.method.toString() &&
+      toIgnore.path === routeOption.url
+  );
+}
 
 export default fp(oasSchemaPlugin);

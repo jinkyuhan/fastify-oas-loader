@@ -1,16 +1,12 @@
 import { OpenAPIV3 } from 'openapi-types';
-import { RouteOptionAlias, RouterIdentification } from './type';
+import type { RouteOptions } from 'fastify';
 
-export function isIgnoredRouter(
-  ignoreList: RouterIdentification[],
-  routeOption: RouteOptionAlias
-) {
-  return ignoreList.some(
-    (toIgnore) =>
-      toIgnore.method === routeOption.method.toString() &&
-      toIgnore.path === routeOption.url
-  );
-}
+export type RouteOptionAlias = RouteOptions & {
+  routePath: string;
+  path: string;
+  prefix: string;
+};
+
 export type OPENAPI_REQUEST_METHOD =
   | 'get'
   | 'GET'
@@ -64,6 +60,7 @@ export const PLUGIN_ERROR_NAME = {
   ROUTER_METHOD_NOT_SUPPORTED: 'ROUTER_METHOD_NOT_SUPPORTED',
   UNKNOWN: 'UNKNOWN',
 } as const;
+
 export class PluginError extends Error {
   constructor(
     message: string,

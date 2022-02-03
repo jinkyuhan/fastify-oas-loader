@@ -1,7 +1,11 @@
 import { OPENAPI_REQUEST_METHOD, OPENAPI_V3_HTTP_METHOD_MAP } from './common';
 import { OpenAPIV3 } from 'openapi-types';
-import { OpenAPIV3SchemaLoader, RouteOptionAlias } from './type';
-import { isNonNull, PLUGIN_ERROR_NAME, PluginError } from './common';
+import {
+  isNonNull,
+  PLUGIN_ERROR_NAME,
+  PluginError,
+  RouteOptionAlias,
+} from './common';
 import type {
   FastifyLoggerInstance,
   FastifySchema,
@@ -14,54 +18,98 @@ import type {
  *  - routeOption.schema 에다 파싱한 데이터를 집어넣는 RouteOptionInjector
  */
 
+export interface OpenAPIV3SchemaLoader {
+  extractPathItemObject: (
+    fromDocument: OpenAPIV3.Document,
+    byPath: string
+  ) => OpenAPIV3.PathItemObject;
+  extractOperationObject: (
+    fromPathObject: OpenAPIV3.PathItemObject,
+    byMethod: HTTPMethods | HTTPMethods[]
+  ) => OpenAPIV3.OperationObject;
+  injectParameters: (
+    parameters: (OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject)[],
+    toRouterOptions: RouteOptionAlias
+  ) => void;
+  injectRequestBody: (
+    requestBody: OpenAPIV3.RequestBodyObject | OpenAPIV3.ReferenceObject,
+    toRouterOptions: RouteOptionAlias
+  ) => void;
+}
+interface JsonSchema {
+  type: 'object';
+  required: string[];
+  properties: { [name: string]: object };
+}
+interface OasFastifySchema extends FastifySchema {
+  body?: JsonSchema;
+  querystring?: JsonSchema;
+  params?: JsonSchema;
+  headers?: JsonSchema;
+  response?: JsonSchema;
+}
 export function makeOpenAPI3SchemaLoader(props: {
   logger?: FastifyLoggerInstance;
 }): OpenAPIV3SchemaLoader {
-  // Currently not used
-  // function doInfoLog(message: string) {
-  //   if (props.logger != null) {
-  //     props.logger.info(message);
-  //   }
-  // }
-  function doWarnLog(message: string) {
+  function _doInfoLog(message: string) {
+    if (props.logger != null) {
+      props.logger.info(message);
+    }
+  }
+  function _doWarnLog(message: string) {
     if (props.logger != null) {
       props.logger.warn(message);
     }
   }
 
+  /**
+   * @param document
+   * @param path
+   * @description Extract PathItem object from Document by Path.
+   * @returns PathItem object of OpenAPI schema spec extracted from pathItem
+   */
   function extractPathItemObject(
-    fromDocument: OpenAPIV3.Document,
-    byPath: string
+    document: OpenAPIV3.Document,
+    path: string
   ): OpenAPIV3.PathItemObject {
-    if (!isNonNull(fromDocument.paths[byPath])) {
+    const pathItem = document.paths[path];
+    if (!isNonNull(pathItem)) {
       throw new PluginError(
-        `The path(${byPath}) is not described in schema. check your schema file`,
+        `The path(${path}) is not described in schema. check your schema file`,
         PLUGIN_ERROR_NAME.INVALID_SCHEMA_FILE
       );
     }
-    return fromDocument.paths[byPath]!;
+    return pathItem;
   }
 
+  /**
+   * @param pathItemObject
+   * @param httpMethod
+   * @description Extract Request Operation object from PathItem object by HttpMethod
+   * @returns Operation object of OpenAPI Schema spec extracted From PathItem object
+   */
   function extractOperationObject(
-    fromPathItemObject: OpenAPIV3.PathItemObject, //ReturnType<typeof getPathItemObject>,
-    byMethod: HTTPMethods | HTTPMethods[]
+    pathItemObject: OpenAPIV3.PathItemObject, //ReturnType<typeof getPathItemObject>,
+    httpMethod: HTTPMethods | HTTPMethods[]
   ): OpenAPIV3.OperationObject {
-    const httpMethod: string = byMethod.toString();
-    if (!OPENAPI_V3_HTTP_METHOD_MAP.hasOwnProperty(httpMethod)) {
+    const httpMethodString: string = httpMethod.toString();
+    if (!OPENAPI_V3_HTTP_METHOD_MAP.hasOwnProperty(httpMethodString)) {
       throw new PluginError(
-        `The method(${httpMethod}) is not supported yet`,
+        `The method(${httpMethodString}) is not supported yet`,
         PLUGIN_ERROR_NAME.ROUTER_METHOD_NOT_SUPPORTED
       );
     }
     const httpMethod_OpenAPIV3 =
-      OPENAPI_V3_HTTP_METHOD_MAP[httpMethod as OPENAPI_REQUEST_METHOD];
-    if (fromPathItemObject[httpMethod_OpenAPIV3] == null) {
+      OPENAPI_V3_HTTP_METHOD_MAP[httpMethodString as OPENAPI_REQUEST_METHOD];
+
+    const operation = pathItemObject[httpMethod_OpenAPIV3];
+    if (operation == null) {
       throw new PluginError(
-        `The method(${byMethod}) is not described in schema. check your schema file`,
+        `The method(${httpMethod}) is not described in schema. check your schema file`,
         PLUGIN_ERROR_NAME.INVALID_SCHEMA_FILE
       );
     }
-    return fromPathItemObject[httpMethod_OpenAPIV3]!;
+    return operation;
   }
 
   function injectParameters(
@@ -77,13 +125,13 @@ export function makeOpenAPI3SchemaLoader(props: {
       }
       switch (param.in) {
         case 'query':
-          routeOption.schema = accumulateQueryParam(param, routeOption);
+          routeOption.schema = _accumulateQueryParam(param, routeOption);
           return;
         case 'path':
-          routeOption.schema = accumulatePathParams(param, routeOption);
+          routeOption.schema = _accumulatePathParams(param, routeOption);
           return;
         case 'header':
-          routeOption.schema = accumulateHeaderParams(param, routeOption);
+          routeOption.schema = _accumulateHeaderParams(param, routeOption);
           return;
         case 'cookie':
           // pass, cannot support
@@ -97,19 +145,7 @@ export function makeOpenAPI3SchemaLoader(props: {
     });
   }
 
-  interface JsonSchema {
-    type: 'object';
-    required: string[];
-    properties: { [name: string]: object };
-  }
-  interface OasFastifySchema extends FastifySchema {
-    body?: JsonSchema;
-    querystring?: JsonSchema;
-    params?: JsonSchema;
-    headers?: JsonSchema;
-    response?: JsonSchema;
-  }
-  function accumulateQueryParam(
+  function _accumulateQueryParam(
     param: OpenAPIV3.ParameterObject,
     routeOption: RouteOptionAlias
   ): OasFastifySchema {
@@ -150,20 +186,20 @@ export function makeOpenAPI3SchemaLoader(props: {
     return newSchema;
   }
 
-  function accumulatePathParams(
+  function _accumulatePathParams(
     param: OpenAPIV3.ParameterObject,
     routeOption: RouteOptionAlias
   ) {
-    doWarnLog('path parameter is not supported yet');
+    _doWarnLog('path parameter is not supported yet');
     return routeOption.schema;
   }
 
-  function accumulateHeaderParams(
+  function _accumulateHeaderParams(
     param: OpenAPIV3.ParameterObject,
     routeOption: RouteOptionAlias
   ) {
-    // To implement
-    doWarnLog('header parameter is not supported yet');
+    // TODO: To implement
+    _doWarnLog('header parameter is not supported yet');
     return routeOption.schema;
   }
 
@@ -188,14 +224,15 @@ export function makeOpenAPI3SchemaLoader(props: {
           PLUGIN_ERROR_NAME.REFERENCE_OBJECT_NOT_SUPPORTED
         );
       }
-      routeOption.schema = schemaFromDocument;
+      routeOption.schema = { ...routeOption.schema };
+      routeOption.schema.body = schemaFromDocument;
     }
     if (
       Object.keys(requestBody.content).some(
         (mediaType) => mediaType !== 'application/json'
       )
     ) {
-      doWarnLog(
+      _doWarnLog(
         `Only application/json supported not yet. It is Passed to inject your schema: ${routeOption.path}.${routeOption.method} using another media type`
       );
     }
