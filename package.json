@@ -1,6 +1,6 @@
 {
   "name": "fastify-openapi-schema-loader",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "main": "index.ts",
   "author": "jinkyuhan <gkswlsrb95@gmail.com> (https://jinkyuhan.com)",
   "license": "MIT",
