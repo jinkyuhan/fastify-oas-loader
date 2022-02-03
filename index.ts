@@ -12,30 +12,32 @@ interface RouterIdentification {
 interface SchemaPluginOptions {
   documentPath: string;
   ignoreRouters?: RouterIdentification[];
-  override?: boolean;
   log?: boolean;
 }
+
 const oasSchemaPlugin: FastifyPluginCallback<SchemaPluginOptions> = async (
   fastify,
-  { documentPath, ignoreRouters = [], log = true },
+  opts,
   done
 ) => {
   try {
-    const oas = await SwaggerParser.validate(documentPath, {});
+    const oas = await SwaggerParser.validate(opts.documentPath, {});
     // TODO: Add oas support version and check type by version.
     if ('openapi' in oas && oas.openapi.startsWith('3.0')) {
       fastify.addHook('onRoute', (routeOption) => {
-        if (log) {
+        if (opts.log) {
           fastify.log.info(
             `Trying to load the schema for [${routeOption.method} ${routeOption.url}]`
           );
         }
-        if (_isIgnoredRouter(ignoreRouters, routeOption)) {
+        if (
+          _isIgnoredRouter(opts.ignoreRouters ?? [], routeOption)
+        ) {
           done();
           return;
         }
         const loader = makeOpenAPI3SchemaLoader({
-          logger: log ? fastify.log : undefined,
+          logger: opts.log ? fastify.log : undefined,
         });
         const pathItemObject = loader.extractPathItemObject(
           oas as OpenAPIV3.Document,
