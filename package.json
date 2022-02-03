@@ -1,0 +1,29 @@
+{
+  "name": "fastify-oas-schema",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "author": "jinkyuhan <gkswlsrb95@gmail.com> (https://jinkyuhan.com)",
+  "license": "Open License",
+  "keywords": [
+    "openapi",
+    "schema",
+    "fastify",
+    "fastify-oas",
+    "fastify-schema"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jinkyuhan/fastify-oas-schema"
+  },
+  "bugs": {
+    "url": "https://github.com/jinkyuhan/fastify-oas-schema/issues"
+  },
+  "homepage": "https://github.com/jinkyuhan/fastify-oas-schema#README",
+  "dependencies": {
+    "tsc": "^2.0.4",
+    "typescript": "^4.5.5"
+  }
+}
