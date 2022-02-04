@@ -1,19 +1,14 @@
 import fp from 'fastify-plugin';
 import SwaggerParser from '@apidevtools/swagger-parser';
-import { PluginError, PLUGIN_ERROR_NAME, RouteOptionAlias } from './common';
+import { PluginError, PLUGIN_ERROR_NAME } from './common';
 import { makeOpenAPI3SchemaLoader } from './loader';
 import { OpenAPIV3 } from 'openapi-types';
 import type { FastifyPluginCallback } from 'fastify';
-
-interface RouterIdentification {
-  method: string;
-  path: string;
-}
-interface SchemaPluginOptions {
-  documentPath: string;
-  ignoreRouters?: RouterIdentification[];
-  log?: boolean;
-}
+import {
+  RouteOptionAlias,
+  RouterIdentification,
+  SchemaPluginOptions,
+} from './index.d';
 
 const oasSchemaPlugin: FastifyPluginCallback<SchemaPluginOptions> = async (
   fastify,
@@ -30,9 +25,7 @@ const oasSchemaPlugin: FastifyPluginCallback<SchemaPluginOptions> = async (
             `Trying to load the schema for [${routeOption.method} ${routeOption.url}]`
           );
         }
-        if (
-          _isIgnoredRouter(opts.ignoreRouters ?? [], routeOption)
-        ) {
+        if (_isIgnoredRouter(opts.ignoreRouters ?? [], routeOption)) {
           done();
           return;
         }

@@ -1,29 +1,6 @@
 import { OpenAPIV3 } from 'openapi-types';
-import type { RouteOptions } from 'fastify';
+import { OPENAPI_REQUEST_METHOD } from './index.d';
 
-export type RouteOptionAlias = RouteOptions & {
-  routePath: string;
-  path: string;
-  prefix: string;
-};
-
-export type OPENAPI_REQUEST_METHOD =
-  | 'get'
-  | 'GET'
-  | 'put'
-  | 'PUT'
-  | 'post'
-  | 'POST'
-  | 'delete'
-  | 'DELETE'
-  | 'options'
-  | 'OPTIONS'
-  | 'head'
-  | 'HEAD'
-  | 'patch'
-  | 'PATCH'
-  | 'trace'
-  | 'TRACE';
 export const OPENAPI_V3_HTTP_METHOD_MAP: Record<
   OPENAPI_REQUEST_METHOD,
   OpenAPIV3.HttpMethods
@@ -46,12 +23,6 @@ export const OPENAPI_V3_HTTP_METHOD_MAP: Record<
   TRACE: OpenAPIV3.HttpMethods.TRACE,
 } as const;
 
-export function isNonNull<T extends unknown>(
-  input: T
-): input is NonNullable<T> {
-  return input !== null && input !== undefined;
-}
-
 export const PLUGIN_ERROR_NAME = {
   SWAGGER_PARSER_ERROR: 'SWAGGER_PARSER_ERROR',
   NOT_SUPPORTED_DOCUMENT_VERSION: 'NOT_SUPPORTED_DOCUMENT_VERSION',
@@ -60,6 +31,12 @@ export const PLUGIN_ERROR_NAME = {
   ROUTER_METHOD_NOT_SUPPORTED: 'ROUTER_METHOD_NOT_SUPPORTED',
   UNKNOWN: 'UNKNOWN',
 } as const;
+
+export function isNonNull<T extends unknown>(
+  input: T
+): input is NonNullable<T> {
+  return input !== null && input !== undefined;
+}
 
 export class PluginError extends Error {
   constructor(

@@ -1,16 +1,21 @@
-import { OPENAPI_REQUEST_METHOD, OPENAPI_V3_HTTP_METHOD_MAP } from './common';
 import { OpenAPIV3 } from 'openapi-types';
 import {
+  OPENAPI_V3_HTTP_METHOD_MAP,
   isNonNull,
   PLUGIN_ERROR_NAME,
   PluginError,
-  RouteOptionAlias,
 } from './common';
 import type {
   FastifyLoggerInstance,
   FastifySchema,
   HTTPMethods,
 } from 'fastify';
+import {
+  OasFastifySchema,
+  OpenAPIV3SchemaLoader,
+  OPENAPI_REQUEST_METHOD,
+  RouteOptionAlias,
+} from './index.d';
 
 /*
  * TODO: 리팩토링, Adaptor 모듈 분리
@@ -18,36 +23,6 @@ import type {
  *  - routeOption.schema 에다 파싱한 데이터를 집어넣는 RouteOptionInjector
  */
 
-export interface OpenAPIV3SchemaLoader {
-  extractPathItemObject: (
-    fromDocument: OpenAPIV3.Document,
-    byPath: string
-  ) => OpenAPIV3.PathItemObject;
-  extractOperationObject: (
-    fromPathObject: OpenAPIV3.PathItemObject,
-    byMethod: HTTPMethods | HTTPMethods[]
-  ) => OpenAPIV3.OperationObject;
-  injectParameters: (
-    parameters: (OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject)[],
-    toRouterOptions: RouteOptionAlias
-  ) => void;
-  injectRequestBody: (
-    requestBody: OpenAPIV3.RequestBodyObject | OpenAPIV3.ReferenceObject,
-    toRouterOptions: RouteOptionAlias
-  ) => void;
-}
-interface JsonSchema {
-  type: 'object';
-  required: string[];
-  properties: { [name: string]: object };
-}
-interface OasFastifySchema extends FastifySchema {
-  body?: JsonSchema;
-  querystring?: JsonSchema;
-  params?: JsonSchema;
-  headers?: JsonSchema;
-  response?: JsonSchema;
-}
 export function makeOpenAPI3SchemaLoader(props: {
   logger?: FastifyLoggerInstance;
 }): OpenAPIV3SchemaLoader {

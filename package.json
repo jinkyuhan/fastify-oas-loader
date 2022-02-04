@@ -1,8 +1,9 @@
 {
   "name": "fastify-openapi-schema-loader",
   "version": "1.0.0",
-  "main": "index.ts",
-  "author": "jinkyuhan <gkswlsrb95@gmail.com> (https://jinkyuhan.com)",
+  "main": "./lib/index.js",
+  "types": "./src/index.d.ts",
+  "author": "jinkyuhan <gkswlsrb95@gmail.com> (https://github.com/jinkyuhan)",
   "license": "MIT",
   "keywords": [
     "openapi",
@@ -14,8 +15,9 @@
     "fastify-openapi-schema"
   ],
   "scripts": {
-    "start": "yarn build && node ./dist/index.js",
-    "build": "tsc --outDir ./dist"
+    "build": "rm -rf ./lib && tsc --outDir ./lib",
+    "deploy": "yarn build && yarn publish --non-interactive",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -27,11 +29,12 @@
   "homepage": "https://github.com/jinkyuhan/fastify-oas-schema#README",
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.0.3",
-    "fastify": "^3.27.0",
     "fastify-plugin": "^3.0.1",
     "openapi-types": "^10.0.0"
   },
   "devDependencies": {
+    "fastify": "^3.27.1",
+    "husky": "^7.0.4",
     "tsc": "^2.0.4",
     "typescript": "^4.5.5"
   }
