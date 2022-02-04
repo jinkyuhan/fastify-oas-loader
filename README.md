@@ -9,7 +9,7 @@ After that, we expect Fastify to verify the request parameter based on the set F
 ## Installation
 
 ```bash
-npm install fastify-oas-schema
+npm install fastify-openapi-schema-loader
 ```
 
 ## Example
