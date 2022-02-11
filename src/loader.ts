@@ -5,11 +5,7 @@ import {
   PLUGIN_ERROR_NAME,
   PluginError,
 } from './common';
-import type {
-  FastifyLoggerInstance,
-  FastifySchema,
-  HTTPMethods,
-} from 'fastify';
+import type { FastifyLoggerInstance, HTTPMethods } from 'fastify';
 import {
   OasFastifySchema,
   OpenAPIV3SchemaLoader,
@@ -26,11 +22,11 @@ import {
 export function makeOpenAPI3SchemaLoader(props: {
   logger?: FastifyLoggerInstance;
 }): OpenAPIV3SchemaLoader {
-  function _doInfoLog(message: string) {
-    if (props.logger != null) {
-      props.logger.info(message);
-    }
-  }
+  // function _doInfoLog(message: string) {
+  //   if (props.logger != null) {
+  //     props.logger.info(message);
+  //   }
+  // }
   function _doWarnLog(message: string) {
     if (props.logger != null) {
       props.logger.warn(message);
