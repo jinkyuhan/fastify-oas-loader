@@ -1,5 +1,5 @@
 {
-  "name": "fastify-openapi-schema-loader",
+  "name": "fastify-oas-loader",
   "version": "1.0.0",
   "main": "./lib/index.js",
   "types": "./src/index.d.ts",
@@ -21,12 +21,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jinkyuhan/fastify-openapi-schema-loader"
+    "url": "https://github.com/jinkyuhan/fastify-oas-loader"
   },
   "bugs": {
-    "url": "https://github.com/jinkyuhan/fastify-openapi-schema-loader/issues"
+    "url": "https://github.com/jinkyuhan/fastify-oas-loader/issues"
   },
-  "homepage": "https://github.com/jinkyuhan/fastify-openapi-schema-loader#README",
+  "homepage": "https://github.com/jinkyuhan/fastify-oas-loader#README",
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.0.3",
     "fastify-plugin": "^3.0.1",

@@ -1,4 +1,4 @@
-# fastify-openapi-schema-loader
+# fastify-oas-loader
 
 This plugin follows the intention of creating the OpenAPI Scheme first and thereby performing request parameter validation based on it.
 
@@ -9,7 +9,7 @@ After that, we expect Fastify to verify the request parameter based on the set F
 ## Installation
 
 ```bash
-npm install fastify-openapi-schema-loader
+npm install fastify-oas-loader
 ```
 
 ## Example
@@ -18,7 +18,7 @@ or with ESM syntax:
 
 ```javascript
 import fastify from 'fastify';
-import oasSchema from 'fastify-openapi-schema-loader';
+import oasSchema from 'fastify-oas-loader';
 
 const app = fastify();
 app.register(oasSchema, {
