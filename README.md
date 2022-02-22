@@ -14,6 +14,24 @@ npm install fastify-oas-loader
 
 ## Example
 
+This plugin read the given oasSchema and inject the Fastify-schema for matched router's option
+
+```javascript
+const fastify = require('fastify');
+const oasSchema = require('fastify-oas-loader');
+
+const app = fastify();
+app.register(oasSchema, {
+  documentPath: 'openapi3.schema.yaml',
+  ignoreRouters: [
+    {
+      method: 'GET',
+      path: '/health-check',
+    },
+  ],
+});
+```
+
 or with ESM syntax:
 
 ```javascript
